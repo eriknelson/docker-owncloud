@@ -1,10 +1,11 @@
-FROM l3iggs/lamp
-MAINTAINER l3iggs <l3iggs@live.com>
-# Report issues here: https://github.com/l3iggs/docker-owncloud/issues
-# Say thanks by adding a star or a comment here: https://registry.hub.docker.com/u/l3iggs/owncloud/
+################################################################################
+FROM eriknelson/lamp
+MAINTAINER eriknelson <io@eriknelson.me>
+# NOTE: Forked from upstream - https://registry.hub.docker.com/u/l3iggs/owncloud
+################################################################################
 
-# upldate package list
-RUN pacman -Sy
+# update package list
+RUN pacman -Syy
 
 # set environmnt variable defaults
 ENV REGENERATE_SSL_CERT false
@@ -16,7 +17,7 @@ ENV TARGET_SUBDIR owncloud
 # remove info.php
 RUN rm /srv/http/info.php
 
-# to mount SAMBA shares: 
+# to mount SAMBA shares:
 RUN pacman -S --noconfirm --needed smbclient
 
 # for video file previews
@@ -52,9 +53,9 @@ RUN chown -R http:http /usr/share/webapps/owncloud/
 RUN sed -i 's,^open_basedir.*$,\0:/usr/share/webapps/owncloud/:/usr/share/webapps/owncloud/config/:/etc/webapps/owncloud/config/,g' /etc/php/php.ini
 
 # expose some important directories as volumes
-#VOLUME ["/usr/share/webapps/owncloud/data"]
-#VOLUME ["/etc/webapps/owncloud/config"]
-#VOLUME ["/usr/share/webapps/owncloud/apps"]
+VOLUME ["/usr/share/webapps/owncloud/data"]
+VOLUME ["/etc/webapps/owncloud/config"]
+VOLUME ["/usr/share/webapps/owncloud/apps"]
 
 # place your ssl cert files in here. name them server.key and server.crt
 #VOLUME ["/https"]
