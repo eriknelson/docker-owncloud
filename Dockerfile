@@ -1,7 +1,12 @@
-################################################################################
+###############################################################################
 FROM eriknelson/lamp
 MAINTAINER eriknelson <io@eriknelson.me>
 # NOTE: Forked from upstream - https://registry.hub.docker.com/u/l3iggs/owncloud
+################################################################################
+# TODO: Permissions issue with volumes being mounted as root into the container
+# Causes apache to be unable to access /usr/share/webapps/owncloud/config
+# As temporary fix, can log into the running container and change permissions afer
+# launching it, but this is not ideal. Need strategic way to deal with this.
 ################################################################################
 
 # update package list
@@ -52,13 +57,19 @@ RUN chown -R http:http /usr/share/webapps/owncloud/
 # configure PHP open_basedir
 RUN sed -i 's,^open_basedir.*$,\0:/usr/share/webapps/owncloud/:/usr/share/webapps/owncloud/config/:/etc/webapps/owncloud/config/,g' /etc/php/php.ini
 
-# expose some important directories as volumes
-VOLUME ["/usr/share/webapps/owncloud/data"]
-VOLUME ["/etc/webapps/owncloud/config"]
-VOLUME ["/usr/share/webapps/owncloud/apps"]
-
+################################################################################
+# TODO: These seem to be problematic, especially the apps mount
+# Upon mount, the apps directory looks like it gets clobbered, after sign in
+# when owncloud goes to load, there's nothingin the directory to load and we're
+# presented with an empty screen. Canonical approach to this?
+# See: https://github.com/l3iggs/docker-owncloud/issues/23
+################################################################################
+#VOLUME ["/usr/share/webapps/owncloud/data"]
+#VOLUME ["/etc/webapps/owncloud/config"]
+#VOLUME ["/usr/share/webapps/owncloud/apps"]
 # place your ssl cert files in here. name them server.key and server.crt
 #VOLUME ["/https"]
+################################################################################
 
 # start servers
 CMD ["/root/startServers.sh"]
